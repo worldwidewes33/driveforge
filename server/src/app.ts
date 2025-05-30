@@ -1,8 +1,12 @@
 import express, { Request, Response } from "express";
 
+import uploadFile from "./api/files/file-controller";
+
 const app = express();
 
 app.use(express.json());
+
+app.post("/upload", uploadFile);
 
 app.get("/health", (req: Request, res: Response) => {
   res.status(200).json({ status: "success", message: "Api is running smoothly" });
