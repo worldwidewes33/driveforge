@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: database
+    restart: always
+    environment:
+      POSTGRES_DB: forge
+      POSTGRES_USER: forge
+      POSTGRES_PASSWORD: forge
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker-data/pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    networks:
+      - driveforge
+
+  server:
+    container_name: server
+    restart: always
+    build:
+      context: ./server
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - PORT=8080
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    networks:
+      - driveforge
+
+networks:
+  driveforge:
+    driver: bridge
