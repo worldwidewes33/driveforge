@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 dotenv.config();
 
-import uploadFile from "./api/files/file-controller";
+import uploadFile from "./api/files/controllers/file";
 
 const app = express();
 
