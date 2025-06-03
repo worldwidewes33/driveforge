@@ -4,15 +4,14 @@ services:
     container_name: database
     restart: always
     environment:
-      POSTGRES_DB: forge
       POSTGRES_USER: forge
       POSTGRES_PASSWORD: forge
     ports:
-      - "5432:5432"
+      - "2345:5432"
     volumes:
       - ./docker-data/pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -U forge"]
       interval: 1s
       timeout: 5s
       retries: 10
@@ -31,6 +30,7 @@ services:
         condition: service_healthy
     environment:
       - PORT=8080
+      - DATABASE_URL=postgresql://forge:forge@db:2345/forge
     volumes:
       - ./server:/app
       - /app/node_modules
