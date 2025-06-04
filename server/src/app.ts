@@ -6,8 +6,6 @@ dotenv.config();
 import { apiRoutes } from "./api/common/apiRoutes";
 import errorController from "./api/errors/errorController";
 
-import uploadFile from "./api/files/controllers/file";
-
 const app = express();
 
 app.use(express.json());
@@ -15,8 +13,6 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 app.use("/api/", apiRoutes);
-
-app.post("/upload", uploadFile);
 
 app.get("/health", (req: Request, res: Response) => {
   res.status(200).json({ status: "success", message: "Api is running smoothly" });
