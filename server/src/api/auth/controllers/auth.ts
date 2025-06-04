@@ -5,6 +5,36 @@ import * as authServices from "../services/auth";
 import catchAsync from "../../common/utils/catchAsync";
 import AppError from "../../errors/appError";
 
+export const protect = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { authorization } = req.headers;
+
+  if (!authorization?.startsWith("Bearer")) {
+    return next(new AppError("Please login to access this resource", 401));
+  }
+
+  const token = authorization.split(" ")[1];
+  const decoded = authServices.verifyJWT(token);
+
+  if (!decoded) {
+    return next(
+      new AppError("Invalid authorization token, Please login to access this resource", 401)
+    );
+  }
+
+  const user = await userPrismaClient.user.findUnique({
+    where: {
+      id: decoded.id,
+    },
+  });
+
+  if (!user) {
+    return next(new AppError("Invalid authorization token. User does not exist.", 401));
+  }
+
+  req.user = user;
+  next();
+});
+
 export const register = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const { email, password, firstname, lastname } = req.body;
 
