@@ -30,7 +30,9 @@ services:
         condition: service_healthy
     environment:
       - PORT=8080
-      - DATABASE_URL=postgresql://forge:forge@db:2345/forge
+      - DATABASE_URL=postgresql://forge:forge@db:5432/forge
+      - JWT_SECRET_KEY=prose-marek-unites-anders-lamar
+      - JWT_EXPIRES_IN=7d
     volumes:
       - ./server:/app
       - /app/node_modules

@@ -1,4 +1,4 @@
-import { PrismaClient } from "../../../generated/prisma";
+import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "./auth";
 
 // extends the user prisma client so all hashing occurs whenever a create or update query is made
