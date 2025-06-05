@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as fileController from "../controllers/file";
+import * as fileController from "../controllers/file-controllers";
 import { protect } from "../../auth/controllers/auth";
 
 const router = Router();
