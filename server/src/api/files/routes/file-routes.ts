@@ -5,5 +5,6 @@ import { protect } from "../../auth/controllers/auth-controllers";
 const router = Router();
 
 router.route("/").post(protect, fileController.uploadFile);
+router.get("/download/:id", protect, fileController.downloadFile);
 
 export { router as fileRoutes };

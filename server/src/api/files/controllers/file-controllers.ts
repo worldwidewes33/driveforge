@@ -5,10 +5,11 @@ import * as fileServices from "../services/file-services";
 import catchAsync from "../../common/utils/catchAsync";
 import AppError from "../../errors/appError";
 import { File } from "@prisma/client";
+import { pipeline } from "stream/promises";
 
 export const uploadFile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
-    return next(new AppError("Unauthorized", 401));
+    return next(new AppError("Invalid authorization credentials", 401));
   }
 
   // set up busboy
@@ -44,4 +45,37 @@ export const uploadFile = catchAsync(async (req: Request, res: Response, next: N
       }),
     },
   });
+});
+
+export const downloadFile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new AppError("Invalid authorization credentials", 401));
+  }
+
+  const userId = req.user.id!;
+  const fileId = parseInt(req.params.id);
+
+  if (isNaN(fileId)) {
+    return next(new AppError("Invalid file id", 400));
+  }
+
+  const file = await fileServices.getFile(userId, fileId);
+
+  if (!file) {
+    return next(new AppError("File not found", 404));
+  }
+
+  const fileStream = fileServices.getFileReadStream(userId, file.stored_filename);
+
+  res.setHeader("Content-Type", file.mimeType);
+  res.setHeader("Content-Disposition", `attachment; filename="${file.original_filename}"`);
+  res.setHeader("Content-Length", file.size.toString());
+  res.setHeader("Last-Modified", file.updatedAt.toUTCString());
+
+  try {
+    await pipeline(fileStream, res);
+  } catch (err) {
+    console.log(err);
+    return next(err);
+  }
 });

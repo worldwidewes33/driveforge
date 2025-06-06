@@ -1,6 +1,6 @@
 import path from "path";
 import { v4 as uuid } from "uuid";
-import { createWriteStream, mkdirSync } from "fs";
+import { createWriteStream, mkdirSync, createReadStream, ReadStream } from "fs";
 import { FileType, File } from "@prisma/client";
 import prisma from "../../common/prisma";
 import AppError from "../../errors/appError";
@@ -40,6 +40,23 @@ const createFile = async (
 };
 
 // Module exports
+export const getFile = async (userId: number, fileId: number) => {
+  const file = prisma.file.findUnique({
+    where: {
+      id: fileId,
+      ownerId: userId,
+    },
+  });
+
+  return file;
+};
+export const getFileReadStream = (userId: number, filename: string): ReadStream => {
+  const filePath = path.join(UPLOAD_ROOT, userId.toString(), filename);
+  const fileStream = createReadStream(filePath);
+
+  return fileStream;
+};
+
 export const processFileEvent = (
   userId: number,
   file: NodeJS.ReadableStream,
