@@ -1,7 +1,7 @@
 import { Response, Request, NextFunction } from "express";
 
 import userPrismaClient from "../services/userPrismaClient";
-import * as authServices from "../services/auth";
+import * as authServices from "../services/auth-services";
 import catchAsync from "../../common/utils/catchAsync";
 import AppError from "../../errors/appError";
 
