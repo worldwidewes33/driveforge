@@ -1,5 +1,5 @@
-import { PrismaClient } from "../../../generated/prisma";
-import { hashPassword } from "./auth";
+import { PrismaClient } from "@prisma/client";
+import { hashPassword } from "./auth-services";
 
 // extends the user prisma client so all hashing occurs whenever a create or update query is made
 const userPrismaClient = new PrismaClient({

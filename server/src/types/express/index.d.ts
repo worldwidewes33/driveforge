@@ -1,4 +1,4 @@
-import { User } from "../../src/generated/prisma";
+import { User } from "@prisma/client";
 export {};
 
 declare global {
