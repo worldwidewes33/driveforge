@@ -7,6 +7,41 @@ import AppError from "../../errors/appError";
 import { File } from "@prisma/client";
 import { pipeline } from "stream/promises";
 
+const serverFile = (disposition: "download" | "inline") => {
+  return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return next(new AppError("Invalid authorization credentials", 401));
+    }
+
+    const userId = req.user.id!;
+    const fileId = parseInt(req.params.id);
+
+    if (isNaN(fileId)) {
+      return next(new AppError("Invalid file id", 400));
+    }
+
+    const file = await fileServices.getFile(userId, fileId);
+
+    if (!file) {
+      return next(new AppError("File not found", 404));
+    }
+
+    const fileStream = fileServices.getFileReadStream(userId, file.stored_filename);
+
+    res.setHeader("Content-Type", file.mimeType);
+    res.setHeader("Content-Disposition", `${disposition}; filename="${file.original_filename}"`);
+    res.setHeader("Content-Length", file.size.toString());
+    res.setHeader("Last-Modified", file.updatedAt.toUTCString());
+
+    try {
+      await pipeline(fileStream, res);
+    } catch (err) {
+      console.log(err);
+      return next(err);
+    }
+  });
+};
+
 export const uploadFile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
     return next(new AppError("Invalid authorization credentials", 401));
@@ -47,35 +82,6 @@ export const uploadFile = catchAsync(async (req: Request, res: Response, next: N
   });
 });
 
-export const downloadFile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  if (!req.user) {
-    return next(new AppError("Invalid authorization credentials", 401));
-  }
+export const downloadFileAttachment = serverFile("download");
 
-  const userId = req.user.id!;
-  const fileId = parseInt(req.params.id);
-
-  if (isNaN(fileId)) {
-    return next(new AppError("Invalid file id", 400));
-  }
-
-  const file = await fileServices.getFile(userId, fileId);
-
-  if (!file) {
-    return next(new AppError("File not found", 404));
-  }
-
-  const fileStream = fileServices.getFileReadStream(userId, file.stored_filename);
-
-  res.setHeader("Content-Type", file.mimeType);
-  res.setHeader("Content-Disposition", `attachment; filename="${file.original_filename}"`);
-  res.setHeader("Content-Length", file.size.toString());
-  res.setHeader("Last-Modified", file.updatedAt.toUTCString());
-
-  try {
-    await pipeline(fileStream, res);
-  } catch (err) {
-    console.log(err);
-    return next(err);
-  }
-});
+export const downloadFileInline = serverFile("inline");
