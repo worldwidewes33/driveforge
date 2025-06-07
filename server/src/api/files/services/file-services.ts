@@ -40,8 +40,18 @@ const createFile = async (
 };
 
 // Module exports
-export const getFile = async (userId: number, fileId: number) => {
-  const file = prisma.file.findUnique({
+export const getAllFiles = async (userId: number): Promise<File[]> => {
+  const files = await prisma.file.findMany({
+    where: {
+      ownerId: userId,
+    },
+  });
+
+  return files;
+};
+
+export const getFile = async (userId: number, fileId: number): Promise<File | null> => {
+  const file = await prisma.file.findUnique({
     where: {
       id: fileId,
       ownerId: userId,
