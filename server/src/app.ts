@@ -5,6 +5,7 @@ dotenv.config();
 
 import { apiRoutes } from "./api/common/apiRoutes";
 import errorController from "./api/errors/errorController";
+import "./utils/monkeyPatch";
 
 const app = express();
 

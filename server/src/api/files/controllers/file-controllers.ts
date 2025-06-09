@@ -72,17 +72,7 @@ export const uploadFile = catchAsync(async (req: Request, res: Response, next: N
 
   const files = await Promise.all(filePromises);
 
-  res.status(201).json({
-    status: "success",
-    data: {
-      files: files.map((file) => {
-        return {
-          ...file,
-          size: file.size.toString(),
-        };
-      }),
-    },
-  });
+  res.status(201).json({ status: "success", data: { files } });
 });
 
 export const downloadFileAttachment = serverFile("download");
@@ -116,8 +106,55 @@ export const getAllFiles = catchAsync(async (req: Request, res: Response, next: 
   }
 
   const userId = req.user.id!;
+  const { deleted } = req.query;
 
-  const files = await fileServices.getAllFiles(userId);
+  if (deleted && deleted !== "true" && deleted != "false") {
+    return next(new AppError(constants.errorHandling.INVALID_QUERY_PARAM("deleted"), 400));
+  }
+
+  const deletedBool = deleted === "true";
+
+  const files = await fileServices.getAllFiles(userId, deletedBool);
 
   res.status(200).json({ status: "success", data: { files } });
+});
+
+export const updateFile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new AppError(constants.errorHandling.INVALID_AUTH_CREDENTIALS, 401));
+  }
+
+  const userId = req.user.id!;
+  const fileId = parseInt(req.params.id);
+
+  if (isNaN(fileId)) {
+    return next(new AppError(constants.errorHandling.INVALID_MODEL_ID("File"), 400));
+  }
+
+  const { newFilename } = req.body;
+
+  if (!newFilename) {
+    return next(new AppError(constants.errorHandling.INCLUDE_PARAM("newFilename"), 400));
+  }
+
+  const file = await fileServices.updateFile(userId, fileId, newFilename);
+
+  res.status(200).json({ status: "success", data: { file } });
+});
+
+export const deleteFile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new AppError(constants.errorHandling.INVALID_AUTH_CREDENTIALS, 401));
+  }
+
+  const userId = req.user.id!;
+  const fileId = parseInt(req.params.id);
+
+  if (isNaN(fileId)) {
+    return next(new AppError(constants.errorHandling.INVALID_MODEL_ID("File"), 400));
+  }
+
+  const file = await fileServices.deleteFile(userId, fileId);
+
+  res.status(204).json({ status: "success", data: { file } });
 });

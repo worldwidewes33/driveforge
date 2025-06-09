@@ -7,7 +7,13 @@ const router = Router();
 router.use(protect);
 
 router.route("/").get(fileController.getAllFiles).post(fileController.uploadFile);
-router.route("/:id").get(fileController.getFile);
+
+router
+  .route("/:id")
+  .get(fileController.getFile)
+  .post(fileController.updateFile)
+  .delete(fileController.deleteFile);
+
 router.get("/download/:id", fileController.downloadFileAttachment);
 router.get("/inline/:id", fileController.downloadFileInline);
 
