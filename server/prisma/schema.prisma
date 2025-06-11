@@ -20,6 +20,7 @@ model User {
   firstname String?
   lastname  String?
   files     File[]
+  folders   Folder[]
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 }
@@ -37,6 +38,8 @@ model File {
   id                Int       @id @default(autoincrement())
   owner             User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId           Int
+  folder            Folder    @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  folderId          Int
   type              FileType
   original_filename String
   stored_filename   String
@@ -47,4 +50,17 @@ model File {
   createdAt         DateTime  @default(now())
 
   @@index([ownerId])
+}
+
+model Folder {
+  id        Int      @id @default(autoincrement())
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   Int
+  name      String
+  parent    Folder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId  Int?
+  children  Folder[] @relation("FolderHierarchy")
+  files     File[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
