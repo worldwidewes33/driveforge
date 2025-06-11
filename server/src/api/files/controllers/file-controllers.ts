@@ -96,7 +96,7 @@ export const getFile = catchAsync(async (req: Request, res: Response, next: Next
     return next(new AppError(constants.errorHandling.INVALID_MODEL_ID("File"), 400));
   }
 
-  const file = await fileServices.getFile(userId, fileId);
+  const file = await fileServices.getFile(fileId, userId);
 
   if (!file) {
     return next(new AppError(constants.errorHandling.MODEL_NOT_FOUND("File"), 404));
@@ -142,7 +142,7 @@ export const updateFile = catchAsync(async (req: Request, res: Response, next: N
     return next(new AppError(constants.errorHandling.INCLUDE_PARAM("newFilename"), 400));
   }
 
-  const file = await fileServices.updateFile(userId, fileId, newFilename);
+  const file = await fileServices.updateFile(newFilename, fileId, userId);
 
   res.status(200).json({ status: "success", data: { file } });
 });
@@ -159,7 +159,7 @@ export const deleteFile = catchAsync(async (req: Request, res: Response, next: N
     return next(new AppError(constants.errorHandling.INVALID_MODEL_ID("File"), 400));
   }
 
-  const file = await fileServices.deleteFile(userId, fileId);
+  const file = await fileServices.deleteFile(fileId, userId);
 
   res.status(204).json({ status: "success", data: { file } });
 });

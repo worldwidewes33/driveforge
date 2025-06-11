@@ -42,11 +42,11 @@ const createFile = async (
 };
 
 // Module exports
-export const getAllFiles = async (userId: number, deleted: boolean): Promise<File[]> => {
+export const getAllFiles = async (ownerId: number, deleted: boolean): Promise<File[]> => {
   const deletedAt = deleted ? { not: null } : null;
   const files = await prisma.file.findMany({
     where: {
-      ownerId: userId,
+      ownerId,
       deletedAt,
     },
   });
@@ -54,11 +54,11 @@ export const getAllFiles = async (userId: number, deleted: boolean): Promise<Fil
   return files;
 };
 
-export const getFile = async (userId: number, fileId: number): Promise<File | null> => {
+export const getFile = async (fileId: number, ownerId: number): Promise<File | null> => {
   const file = await prisma.file.findUnique({
     where: {
       id: fileId,
-      ownerId: userId,
+      ownerId,
     },
   });
 
@@ -66,14 +66,14 @@ export const getFile = async (userId: number, fileId: number): Promise<File | nu
 };
 
 export const updateFile = async (
-  userId: number,
+  newFilename: string,
   fileId: number,
-  newFilename: string
+  ownerId: number
 ): Promise<File> => {
   const file = await prisma.file.update({
     where: {
       id: fileId,
-      ownerId: userId,
+      ownerId,
     },
     data: {
       original_filename: newFilename,
@@ -83,11 +83,11 @@ export const updateFile = async (
   return file;
 };
 
-export const deleteFile = async (userId: number, fileId: number): Promise<File> => {
+export const deleteFile = async (fileId: number, ownerId: number): Promise<File> => {
   const file = await prisma.file.update({
     where: {
       id: fileId,
-      ownerId: userId,
+      ownerId,
     },
     data: {
       deletedAt: new Date(),
