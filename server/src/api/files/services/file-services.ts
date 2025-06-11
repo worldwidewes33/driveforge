@@ -19,6 +19,7 @@ const getDestinationDir = (userId: number): string => {
 
 const createFile = async (
   ownerId: number,
+  folderId: number,
   originalName: string,
   storedName: string,
   mimeType: string,
@@ -28,6 +29,7 @@ const createFile = async (
   const file = await prisma.file.create({
     data: {
       ownerId,
+      folderId,
       original_filename: originalName,
       stored_filename: storedName,
       mimeType,
@@ -104,6 +106,7 @@ export const getFileReadStream = (userId: number, filename: string): ReadStream 
 
 export const processFileEvent = (
   userId: number,
+  folderId: number,
   file: NodeJS.ReadableStream,
   info: { filename: string; encoding: string; mimeType: string }
 ): Promise<File> => {
@@ -133,6 +136,7 @@ export const processFileEvent = (
       try {
         const createdFile = await createFile(
           userId,
+          folderId,
           filename,
           storedFilename,
           mimeType,

@@ -6,12 +6,12 @@ const router = Router();
 
 router.use(protect);
 
-router.route("/").get(fileController.getAllFiles).post(fileController.uploadFile);
+router.route("/").get(fileController.getAllFiles);
 
 router
   .route("/:id")
   .get(fileController.getFile)
-  .post(fileController.updateFile)
+  .patch(fileController.updateFile)
   .delete(fileController.deleteFile);
 
 router.get("/download/:id", fileController.downloadFileAttachment);

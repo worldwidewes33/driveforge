@@ -56,9 +56,14 @@ export const uploadFile = catchAsync(async (req: Request, res: Response, next: N
   // create array for all files
   const filePromises: Promise<File>[] = [];
   const userId = req.user.id!;
+  const folderId = parseInt(req.params.folderId);
+
+  if (isNaN(folderId)) {
+    return next(new AppError(constants.errorHandling.INVALID_MODEL_ID("Folder"), 400));
+  }
 
   bb.on("file", (name, file, info) => {
-    filePromises.push(fileServices.processFileEvent(userId, file, info));
+    filePromises.push(fileServices.processFileEvent(userId, folderId, file, info));
   });
 
   bb.on("error", (err) => filePromises.push(Promise.reject(err)));
