@@ -1,4 +1,5 @@
 import { Folder } from "@prisma/client";
+import { getFolderAndRecursiveChildren } from "@prisma/client/sql";
 import prisma from "../../common/prisma";
 
 export const getAllFolders = async (ownerId: number, deleted: boolean): Promise<Folder[]> => {
@@ -70,16 +71,19 @@ export const updateFolder = async (
   return folder;
 };
 
-export const deleteFolder = async (folderId: number, ownerId: number): Promise<Folder> => {
-  const folder = await prisma.folder.update({
+export const deleteFolder = async (folderId: number, ownerId: number) => {
+  const recursiveFolders = await prisma.$queryRawTyped(getFolderAndRecursiveChildren(folderId));
+
+  const folderIds = recursiveFolders.map((folder) => folder.id) as number[];
+
+  const folders = await prisma.folder.updateMany({
     where: {
-      id: folderId,
-      ownerId,
+      id: { in: folderIds },
     },
     data: {
       deletedAt: new Date(),
     },
   });
 
-  return folder;
+  return folders;
 };

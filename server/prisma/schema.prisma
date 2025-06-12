@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["typedSql"]
 }
 
 datasource db {
@@ -50,6 +51,7 @@ model File {
   createdAt         DateTime  @default(now())
 
   @@index([ownerId])
+  @@index([folderId])
 }
 
 model Folder {
@@ -65,5 +67,7 @@ model Folder {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  @@unique([ownerId, parentFolderId])
+  @@unique([ownerId, name, parentFolderId])
+  @@index([ownerId])
+  @@index([parentFolderId])
 }

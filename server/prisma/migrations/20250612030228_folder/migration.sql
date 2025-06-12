@@ -13,6 +13,7 @@ CREATE TABLE "Folder" (
     "ownerId" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "parentFolderId" INTEGER,
+    "deletedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -20,7 +21,16 @@ CREATE TABLE "Folder" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Folder_ownerId_parentFolderId_key" ON "Folder"("ownerId", "parentFolderId");
+CREATE INDEX "Folder_ownerId_idx" ON "Folder"("ownerId");
+
+-- CreateIndex
+CREATE INDEX "Folder_parentFolderId_idx" ON "Folder"("parentFolderId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Folder_ownerId_name_parentFolderId_key" ON "Folder"("ownerId", "name", "parentFolderId");
+
+-- CreateIndex
+CREATE INDEX "File_folderId_idx" ON "File"("folderId");
 
 -- AddForeignKey
 ALTER TABLE "File" ADD CONSTRAINT "File_folderId_fkey" FOREIGN KEY ("folderId") REFERENCES "Folder"("id") ON DELETE CASCADE ON UPDATE CASCADE;
