@@ -39,6 +39,23 @@ services:
     networks:
       - driveforge
 
+  client:
+    container_name: client
+    build:
+      context: ./client
+    ports:
+      - "5173:5173"
+    depends_on:
+      - "server"
+    environment:
+      - NODE_ENV=development
+      - VITE_DEV=true
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    networks:
+      - driveforge
+
 networks:
   driveforge:
     driver: bridge
