@@ -42,18 +42,6 @@ const createFile = async (
 };
 
 // Module exports
-export const getAllFiles = async (ownerId: number, deleted: boolean): Promise<File[]> => {
-  const deletedAt = deleted ? { not: null } : null;
-  const files = await prisma.file.findMany({
-    where: {
-      ownerId,
-      deletedAt,
-    },
-  });
-
-  return files;
-};
-
 export const getFile = async (fileId: number, ownerId: number): Promise<File | null> => {
   const file = await prisma.file.findUnique({
     where: {
@@ -95,6 +83,20 @@ export const deleteFile = async (fileId: number, ownerId: number): Promise<File>
   });
 
   return file;
+};
+
+export const getDeleteFile = async (ownerId: number): Promise<File[]> => {
+  const files = await prisma.file.findMany({
+    where: {
+      ownerId,
+      deletedAt: { not: null },
+      folder: {
+        deletedAt: null,
+      },
+    },
+  });
+
+  return files;
 };
 
 export const getFileReadStream = (userId: number, filename: string): ReadStream => {

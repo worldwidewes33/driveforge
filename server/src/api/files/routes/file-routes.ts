@@ -6,8 +6,6 @@ const router = Router();
 
 router.use(protect);
 
-router.route("/").get(fileController.getAllFiles);
-
 router
   .route("/:id")
   .get(fileController.getFile)

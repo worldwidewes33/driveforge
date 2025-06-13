@@ -2,30 +2,6 @@ import { Folder } from "@prisma/client";
 import { getFolderAndRecursiveChildren } from "@prisma/client/sql";
 import prisma from "../../common/prisma";
 
-export const getAllFolders = async (ownerId: number, deleted: boolean): Promise<Folder[]> => {
-  const deletedAt = deleted ? { not: null } : null;
-  const folders = await prisma.folder.findMany({
-    where: {
-      ownerId,
-      deletedAt,
-    },
-    include: {
-      children: {
-        where: {
-          deletedAt,
-        },
-      },
-      files: {
-        where: {
-          deletedAt,
-        },
-      },
-    },
-  });
-
-  return folders;
-};
-
 export const getFolder = async (folderId: number, ownerId: number): Promise<Folder | null> => {
   const folder = await prisma.folder.findUnique({
     where: {
@@ -82,6 +58,20 @@ export const deleteFolder = async (folderId: number, ownerId: number) => {
     },
     data: {
       deletedAt: new Date(),
+    },
+  });
+
+  return folders;
+};
+
+export const getDeletedFolders = async (ownerId: number): Promise<Folder[]> => {
+  const folders = await prisma.folder.findMany({
+    where: {
+      ownerId,
+      deletedAt: { not: null },
+      parentFolder: {
+        deletedAt: null,
+      },
     },
   });
 

@@ -105,25 +105,6 @@ export const getFile = catchAsync(async (req: Request, res: Response, next: Next
   res.status(200).json({ status: "success", data: { file } });
 });
 
-export const getAllFiles = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  if (!req.user) {
-    return next(new AppError(constants.errorHandling.INVALID_AUTH_CREDENTIALS, 401));
-  }
-
-  const userId = req.user.id!;
-  const { deleted } = req.query;
-
-  if (deleted && deleted !== "true" && deleted != "false") {
-    return next(new AppError(constants.errorHandling.INVALID_QUERY_PARAM("deleted"), 400));
-  }
-
-  const deletedBool = deleted === "true";
-
-  const files = await fileServices.getAllFiles(userId, deletedBool);
-
-  res.status(200).json({ status: "success", data: { files } });
-});
-
 export const updateFile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
     return next(new AppError(constants.errorHandling.INVALID_AUTH_CREDENTIALS, 401));

@@ -47,25 +47,6 @@ export const getFolder = catchAsync(async (req: Request, res: Response, next: Ne
   res.status(200).json({ status: "success", data: { folder } });
 });
 
-export const getAllFolders = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  if (!req.user) {
-    return next(new AppError(constants.errorHandling.INVALID_AUTH_CREDENTIALS, 401));
-  }
-
-  const userId = req.user.id!;
-  const { deleted } = req.query;
-
-  if (deleted && deleted !== "true" && deleted !== "false") {
-    return next(new AppError(constants.errorHandling.INVALID_QUERY_PARAM("deleted"), 400));
-  }
-
-  const deletedBool = deleted === "true";
-
-  const folders = await folderServices.getAllFolders(userId, deletedBool);
-
-  res.status(201).json({ status: "success", data: { folders } });
-});
-
 export const updateFolder = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
     return next(new AppError(constants.errorHandling.INVALID_AUTH_CREDENTIALS, 401));

@@ -7,8 +7,6 @@ const router = Router();
 
 router.use(protect);
 
-router.route("/").get(folderControllers.getAllFolders);
-
 router.post("/:parentFolderId", folderControllers.createFolder);
 
 router
