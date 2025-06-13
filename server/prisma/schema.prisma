@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["typedSql"]
 }
 
 datasource db {
@@ -20,6 +21,7 @@ model User {
   firstname String?
   lastname  String?
   files     File[]
+  folders   Folder[]
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 }
@@ -34,16 +36,38 @@ enum FileType {
 }
 
 model File {
-  id                Int      @id @default(autoincrement())
-  owner             User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  id                Int       @id @default(autoincrement())
+  owner             User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId           Int
+  folder            Folder    @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  folderId          Int
   type              FileType
   original_filename String
   stored_filename   String
   mimeType          String
   size              BigInt
-  updatedAt         DateTime @updatedAt
-  createdAt         DateTime @default(now())
+  deletedAt         DateTime?
+  updatedAt         DateTime  @updatedAt
+  createdAt         DateTime  @default(now())
 
   @@index([ownerId])
+  @@index([folderId])
+}
+
+model Folder {
+  id             Int       @id @default(autoincrement())
+  owner          User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId        Int
+  name           String
+  parentFolder   Folder?   @relation("FolderHierarchy", fields: [parentFolderId], references: [id], onDelete: Cascade)
+  parentFolderId Int?
+  children       Folder[]  @relation("FolderHierarchy")
+  files          File[]
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([ownerId, name, parentFolderId])
+  @@index([ownerId])
+  @@index([parentFolderId])
 }

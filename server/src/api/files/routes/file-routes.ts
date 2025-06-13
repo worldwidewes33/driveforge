@@ -4,8 +4,15 @@ import { protect } from "../../auth/controllers/auth-controllers";
 
 const router = Router();
 
-router.route("/").post(protect, fileController.uploadFile);
-router.get("/download/:id", protect, fileController.downloadFileAttachment);
-router.get("/inline/:id", protect, fileController.downloadFileInline);
+router.use(protect);
+
+router
+  .route("/:id")
+  .get(fileController.getFile)
+  .patch(fileController.updateFile)
+  .delete(fileController.deleteFile);
+
+router.get("/download/:id", fileController.downloadFileAttachment);
+router.get("/inline/:id", fileController.downloadFileInline);
 
 export { router as fileRoutes };

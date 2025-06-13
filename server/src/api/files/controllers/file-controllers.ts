@@ -1,29 +1,31 @@
 import { NextFunction, Request, Response } from "express";
 import busboy from "busboy";
+import { pipeline } from "stream/promises";
 
+import { File } from "@prisma/client";
 import * as fileServices from "../services/file-services";
 import catchAsync from "../../common/utils/catchAsync";
 import AppError from "../../errors/appError";
-import { File } from "@prisma/client";
-import { pipeline } from "stream/promises";
+import constants from "../../common/constants";
 
+// helper functions
 const serverFile = (disposition: "download" | "inline") => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return next(new AppError("Invalid authorization credentials", 401));
+      return next(new AppError(constants.errorHandling.INVALID_AUTH_CREDENTIALS, 401));
     }
 
     const userId = req.user.id!;
     const fileId = parseInt(req.params.id);
 
     if (isNaN(fileId)) {
-      return next(new AppError("Invalid file id", 400));
+      return next(new AppError(constants.errorHandling.INVALID_MODEL_ID("File"), 400));
     }
 
     const file = await fileServices.getFile(userId, fileId);
 
     if (!file) {
-      return next(new AppError("File not found", 404));
+      return next(new AppError(constants.errorHandling.MODEL_NOT_FOUND("File"), 404));
     }
 
     const fileStream = fileServices.getFileReadStream(userId, file.stored_filename);
@@ -42,9 +44,10 @@ const serverFile = (disposition: "download" | "inline") => {
   });
 };
 
+// exported controllers
 export const uploadFile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
-    return next(new AppError("Invalid authorization credentials", 401));
+    return next(new AppError(constants.errorHandling.INVALID_AUTH_CREDENTIALS, 401));
   }
 
   // set up busboy
@@ -53,9 +56,14 @@ export const uploadFile = catchAsync(async (req: Request, res: Response, next: N
   // create array for all files
   const filePromises: Promise<File>[] = [];
   const userId = req.user.id!;
+  const folderId = parseInt(req.params.folderId);
+
+  if (isNaN(folderId)) {
+    return next(new AppError(constants.errorHandling.INVALID_MODEL_ID("Folder"), 400));
+  }
 
   bb.on("file", (name, file, info) => {
-    filePromises.push(fileServices.processFileEvent(userId, file, info));
+    filePromises.push(fileServices.processFileEvent(userId, folderId, file, info));
   });
 
   bb.on("error", (err) => filePromises.push(Promise.reject(err)));
@@ -69,19 +77,70 @@ export const uploadFile = catchAsync(async (req: Request, res: Response, next: N
 
   const files = await Promise.all(filePromises);
 
-  res.status(201).json({
-    status: "success",
-    data: {
-      files: files.map((file) => {
-        return {
-          ...file,
-          size: file.size.toString(),
-        };
-      }),
-    },
-  });
+  res.status(201).json({ status: "success", data: { files } });
 });
 
 export const downloadFileAttachment = serverFile("download");
 
 export const downloadFileInline = serverFile("inline");
+
+export const getFile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new AppError(constants.errorHandling.INVALID_AUTH_CREDENTIALS, 401));
+  }
+
+  const userId = req.user.id!;
+  const fileId = parseInt(req.params.id);
+
+  if (isNaN(fileId)) {
+    return next(new AppError(constants.errorHandling.INVALID_MODEL_ID("File"), 400));
+  }
+
+  const file = await fileServices.getFile(fileId, userId);
+
+  if (!file) {
+    return next(new AppError(constants.errorHandling.MODEL_NOT_FOUND("File"), 404));
+  }
+
+  res.status(200).json({ status: "success", data: { file } });
+});
+
+export const updateFile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new AppError(constants.errorHandling.INVALID_AUTH_CREDENTIALS, 401));
+  }
+
+  const userId = req.user.id!;
+  const fileId = parseInt(req.params.id);
+
+  if (isNaN(fileId)) {
+    return next(new AppError(constants.errorHandling.INVALID_MODEL_ID("File"), 400));
+  }
+
+  const { newFilename } = req.body;
+
+  if (!newFilename) {
+    return next(new AppError(constants.errorHandling.INCLUDE_PARAM("newFilename"), 400));
+  }
+
+  const file = await fileServices.updateFile(newFilename, fileId, userId);
+
+  res.status(200).json({ status: "success", data: { file } });
+});
+
+export const deleteFile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return next(new AppError(constants.errorHandling.INVALID_AUTH_CREDENTIALS, 401));
+  }
+
+  const userId = req.user.id!;
+  const fileId = parseInt(req.params.id);
+
+  if (isNaN(fileId)) {
+    return next(new AppError(constants.errorHandling.INVALID_MODEL_ID("File"), 400));
+  }
+
+  const file = await fileServices.deleteFile(fileId, userId);
+
+  res.status(204).json({ status: "success", data: { file } });
+});

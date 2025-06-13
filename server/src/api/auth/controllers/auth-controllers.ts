@@ -48,6 +48,12 @@ export const register = catchAsync(async (req: Request, res: Response, next: Nex
       password,
       firstname,
       lastname,
+      folders: {
+        create: {
+          name: "Root",
+          parentFolderId: null,
+        },
+      },
     },
   });
 

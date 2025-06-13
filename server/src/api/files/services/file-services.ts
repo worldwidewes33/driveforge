@@ -19,6 +19,7 @@ const getDestinationDir = (userId: number): string => {
 
 const createFile = async (
   ownerId: number,
+  folderId: number,
   originalName: string,
   storedName: string,
   mimeType: string,
@@ -28,6 +29,7 @@ const createFile = async (
   const file = await prisma.file.create({
     data: {
       ownerId,
+      folderId,
       original_filename: originalName,
       stored_filename: storedName,
       mimeType,
@@ -40,16 +42,63 @@ const createFile = async (
 };
 
 // Module exports
-export const getFile = async (userId: number, fileId: number) => {
-  const file = prisma.file.findUnique({
+export const getFile = async (fileId: number, ownerId: number): Promise<File | null> => {
+  const file = await prisma.file.findUnique({
     where: {
       id: fileId,
-      ownerId: userId,
+      ownerId,
     },
   });
 
   return file;
 };
+
+export const updateFile = async (
+  newFilename: string,
+  fileId: number,
+  ownerId: number
+): Promise<File> => {
+  const file = await prisma.file.update({
+    where: {
+      id: fileId,
+      ownerId,
+    },
+    data: {
+      original_filename: newFilename,
+    },
+  });
+
+  return file;
+};
+
+export const deleteFile = async (fileId: number, ownerId: number): Promise<File> => {
+  const file = await prisma.file.update({
+    where: {
+      id: fileId,
+      ownerId,
+    },
+    data: {
+      deletedAt: new Date(),
+    },
+  });
+
+  return file;
+};
+
+export const getDeleteFile = async (ownerId: number): Promise<File[]> => {
+  const files = await prisma.file.findMany({
+    where: {
+      ownerId,
+      deletedAt: { not: null },
+      folder: {
+        deletedAt: null,
+      },
+    },
+  });
+
+  return files;
+};
+
 export const getFileReadStream = (userId: number, filename: string): ReadStream => {
   const filePath = path.join(UPLOAD_ROOT, userId.toString(), filename);
   const fileStream = createReadStream(filePath);
@@ -59,6 +108,7 @@ export const getFileReadStream = (userId: number, filename: string): ReadStream 
 
 export const processFileEvent = (
   userId: number,
+  folderId: number,
   file: NodeJS.ReadableStream,
   info: { filename: string; encoding: string; mimeType: string }
 ): Promise<File> => {
@@ -88,6 +138,7 @@ export const processFileEvent = (
       try {
         const createdFile = await createFile(
           userId,
+          folderId,
           filename,
           storedFilename,
           mimeType,
