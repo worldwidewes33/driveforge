@@ -40,7 +40,7 @@ services:
       - driveforge
 
   client:
-    container_name: client
+    container_name: driveforge-client
     build:
       context: ./client
     ports:
