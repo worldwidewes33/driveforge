@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+Whenever you relocate any function, component, or block of code to a different file, delete the original implementation. Remove the original code. Never leave commented-out or duplicate code behind. 

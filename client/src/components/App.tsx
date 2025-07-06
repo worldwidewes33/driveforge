@@ -5,7 +5,7 @@
 
 import { Box, Container, Typography, Button, Paper, IconButton, Tooltip } from '@mui/material';
 import { CloudUpload, Folder, Storage, DarkMode, LightMode } from '@mui/icons-material';
-import { useThemeMode } from './ThemeModeContext';
+import { useThemeMode } from '../contexts/useThemeMode';
 
 function App() {
   const { mode, toggleMode } = useThemeMode();
@@ -82,4 +82,4 @@ function App() {
   );
 }
 
-export default App;
+export default App; 

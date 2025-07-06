@@ -5,21 +5,8 @@
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import App from "./App.tsx";
-import { lightTheme, darkTheme } from './theme';
-import { ThemeModeProvider, useThemeMode } from './ThemeModeContext';
-
-function ThemedApp() {
-  const { mode } = useThemeMode();
-  return (
-    <ThemeProvider theme={mode === 'dark' ? darkTheme : lightTheme}>
-      <CssBaseline />
-      <App />
-    </ThemeProvider>
-  );
-}
+import ThemedApp from "./components/ThemedApp";
+import { ThemeModeProvider } from './contexts/ThemeModeProvider';
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
