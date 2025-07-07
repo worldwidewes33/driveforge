@@ -40,7 +40,7 @@ interface AuthFormProps {
  * Generic authentication form component for both sign in and registration
  * @param mode - Authentication mode ('signin' or 'register')
  */
-export function AuthForm({ mode = "signin" }: AuthFormProps) {
+export function AuthForm({ mode = "signin" }: Readonly<AuthFormProps>) {
   const { signIn, register, isLoading, error, clearError } = useAuth();
   const { mode: themeMode, toggleMode } = useThemeMode();
   const navigate = useNavigate();

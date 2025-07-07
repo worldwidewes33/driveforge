@@ -12,7 +12,7 @@ interface ProtectedRouteProps {
  * Protected route wrapper that redirects unauthenticated users to signin
  * @param children - Child components to render if authenticated
  */
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
+export function ProtectedRoute({ children }: Readonly<ProtectedRouteProps>) {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
