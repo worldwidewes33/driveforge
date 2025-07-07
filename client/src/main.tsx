@@ -5,13 +5,16 @@
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import ThemedApp from "./components/ThemedApp";
-import { ThemeModeProvider } from './contexts/ThemeModeProvider';
+import App from "./App";
+import { ThemeModeProvider } from './features/theme/ThemeModeProvider';
+import { AuthProvider } from './features/auth/AuthProvider';
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeModeProvider>
-      <ThemedApp />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </ThemeModeProvider>
   </StrictMode>
 );

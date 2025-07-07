@@ -1,14 +1,25 @@
 import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
+import cors from "cors";
 dotenv.config();
 
 import { apiRoutes } from "./api/common/apiRoutes";
 import AppError from "./api/errors/appError";
-import errorController from "./api/errors/errorController";
+import errorController from "./api/errors/error-controllers";
 import "./utils/monkeyPatch";
 
 const app = express();
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+    ],
+    methods: "GET,PUT,POST,DELETE,OPTIONS",
+    allowedHeaders: "Content-Type,Authorization",
+  })
+);
 
 app.use(express.json());
 

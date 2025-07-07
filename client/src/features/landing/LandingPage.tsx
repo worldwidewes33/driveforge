@@ -4,10 +4,14 @@
  */
 
 import { Box, Container, Typography, Button, Paper, IconButton, Tooltip } from '@mui/material';
-import { CloudUpload, Folder, Storage, DarkMode, LightMode } from '@mui/icons-material';
-import { useThemeMode } from '../contexts/useThemeMode';
+import { CloudUpload, Folder, Storage, DarkMode, LightMode, Login } from '@mui/icons-material';
+import { useThemeMode } from '../theme/useThemeMode';
 
-function App() {
+interface LandingPageProps {
+  onNavigateToSignIn?: () => void;
+}
+
+function LandingPage({ onNavigateToSignIn }: LandingPageProps) {
   const { mode, toggleMode } = useThemeMode();
 
   return (
@@ -66,20 +70,31 @@ function App() {
           </Paper>
         </Box>
 
-        {/* Action Button */}
+        {/* Action Buttons */}
         <Box sx={{ textAlign: 'center', mt: 4 }}>
           <Button 
             variant="contained" 
             size="large" 
             startIcon={<CloudUpload />}
-            sx={{ px: 4, py: 1.5 }}
+            sx={{ px: 4, py: 1.5, mr: 2 }}
           >
             Get Started
           </Button>
+          {onNavigateToSignIn && (
+            <Button 
+              variant="outlined" 
+              size="large" 
+              startIcon={<Login />}
+              onClick={onNavigateToSignIn}
+              sx={{ px: 4, py: 1.5 }}
+            >
+              Sign In
+            </Button>
+          )}
         </Box>
       </Container>
     </Box>
   );
 }
 
-export default App; 
+export default LandingPage; 

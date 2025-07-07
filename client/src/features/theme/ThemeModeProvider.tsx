@@ -1,7 +1,7 @@
 /**
  * @fileoverview Provides theme mode (light/dark) context for the app.
  */
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ThemeModeContext } from './useThemeMode';
 
@@ -15,7 +15,7 @@ export function ThemeModeProvider({ children }: { children: ReactNode }) {
 
   const toggleMode = () => setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
 
-  const value = useMemo(() => ({ mode, toggleMode }), [mode]);
+  const contextValue = useMemo(() => ({ mode, toggleMode }), [mode]);
 
-  return <ThemeModeContext.Provider value={value}>{children}</ThemeModeContext.Provider>;
+  return <ThemeModeContext.Provider value={contextValue}>{children}</ThemeModeContext.Provider>;
 } 
