@@ -5,14 +5,14 @@
 
 import { Box, Container, Typography, Button, Paper, IconButton, Tooltip } from '@mui/material';
 import { CloudUpload, Folder, Storage, DarkMode, LightMode, Login } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { useThemeMode } from '../theme/useThemeMode';
+import { useAuth } from '../auth/useAuth';
 
-interface LandingPageProps {
-  onNavigateToSignIn?: () => void;
-}
-
-function LandingPage({ onNavigateToSignIn }: LandingPageProps) {
+function LandingPage() {
   const { mode, toggleMode } = useThemeMode();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -72,24 +72,36 @@ function LandingPage({ onNavigateToSignIn }: LandingPageProps) {
 
         {/* Action Buttons */}
         <Box sx={{ textAlign: 'center', mt: 4 }}>
-          <Button 
-            variant="contained" 
-            size="large" 
-            startIcon={<CloudUpload />}
-            sx={{ px: 4, py: 1.5, mr: 2 }}
-          >
-            Get Started
-          </Button>
-          {onNavigateToSignIn && (
+          {isAuthenticated ? (
             <Button 
-              variant="outlined" 
+              variant="contained" 
               size="large" 
-              startIcon={<Login />}
-              onClick={onNavigateToSignIn}
+              startIcon={<CloudUpload />}
               sx={{ px: 4, py: 1.5 }}
             >
-              Sign In
+              Upload Files
             </Button>
+          ) : (
+            <>
+              <Button 
+                variant="contained" 
+                size="large" 
+                startIcon={<CloudUpload />}
+                onClick={() => navigate('/signup')}
+                sx={{ px: 4, py: 1.5, mr: 2 }}
+              >
+                Get Started
+              </Button>
+              <Button 
+                variant="outlined" 
+                size="large" 
+                startIcon={<Login />}
+                onClick={() => navigate('/signin')}
+                sx={{ px: 4, py: 1.5 }}
+              >
+                Sign In
+              </Button>
+            </>
           )}
         </Box>
       </Container>

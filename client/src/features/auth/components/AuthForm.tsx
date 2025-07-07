@@ -27,25 +27,23 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../useAuth';
 import { useThemeMode } from '../../theme/useThemeMode';
+import { useNavigate } from 'react-router-dom';
 import type { RegisterCredentials } from '../auth.types';
 
 type AuthMode = 'signin' | 'register';
 
 interface AuthFormProps {
   mode?: AuthMode;
-  onNavigateToLanding?: () => void;
-  onModeChange?: (mode: AuthMode) => void;
 }
 
 /**
  * Generic authentication form component for both sign in and registration
  * @param mode - Authentication mode ('signin' or 'register')
- * @param onNavigateToLanding - Optional callback to navigate back to landing page
- * @param onModeChange - Optional callback when switching between modes
  */
-export function AuthForm({ mode , onNavigateToLanding, onModeChange }: AuthFormProps) {
+export function AuthForm({ mode = 'signin' }: AuthFormProps) {
   const { signIn, register, isLoading, error, clearError } = useAuth();
   const { mode: themeMode, toggleMode } = useThemeMode();
+  const navigate = useNavigate();
   
   const [formData, setFormData] = useState<RegisterCredentials>({
     email: '',
@@ -138,12 +136,14 @@ export function AuthForm({ mode , onNavigateToLanding, onModeChange }: AuthFormP
         } else {
           await register(formData);
         }
+        // Navigate to dashboard after successful authentication
+        navigate('/dashboard');
       } catch (error) {
         // Error is handled by AuthProvider
         console.error(`${mode === 'signin' ? 'Sign in' : 'Registration'} failed:`, error);
       }
     }
-  }, [formData, validateForm, signIn, register, mode]);
+  }, [formData, validateForm, signIn, register, mode, navigate]);
 
   /**
    * Toggle password visibility
@@ -354,24 +354,22 @@ export function AuthForm({ mode , onNavigateToLanding, onModeChange }: AuthFormP
                   type="button"
                   color="primary" 
                   underline="hover"
-                  onClick={() => onModeChange?.(mode === 'signin' ? 'register' : 'signin')}
+                  onClick={() => navigate(mode === 'signin' ? '/signup' : '/signin')}
                 >
                   {mode === 'signin' ? 'Sign up' : 'Sign in'}
                 </Link>
               </Typography>
-              {onNavigateToLanding && (
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  <Link
-                    component="button"
-                    type="button"
-                    color="primary"
-                    underline="hover"
-                    onClick={onNavigateToLanding}
-                  >
-                    ← Back to home
-                  </Link>
-                </Typography>
-              )}
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                <Link
+                  component="button"
+                  type="button"
+                  color="primary"
+                  underline="hover"
+                  onClick={() => navigate('/')}
+                >
+                  ← Back to home
+                </Link>
+              </Typography>
             </Box>
           </form>
         </Paper>
