@@ -8,7 +8,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import LandingPage from "./features/landing/LandingPage";
 import SignIn from "./features/auth/SignIn";
 import SignUp from "./features/auth/SignUp";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./features/auth/components/ProtectedRoute";
 import { lightTheme, darkTheme } from "./features/theme/theme";
 import { useThemeMode } from "./features/theme/useThemeMode";
 import { useAuth } from "./features/auth/useAuth";

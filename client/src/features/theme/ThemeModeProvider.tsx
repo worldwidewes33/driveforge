@@ -8,12 +8,13 @@ import { ThemeModeContext } from "./useThemeMode";
 /**
  * Provides theme mode state and toggle function to children.
  */
-export function ThemeModeProvider({ children }: { children: ReactNode }) {
-  const [mode, setMode] = useState<"light" | "dark">(
-    window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light"
-  );
+export function ThemeModeProvider({ children }: { readonly children: ReactNode }) {
+  const [mode, setMode] = useState<"light" | "dark">(() => {
+    if (typeof window !== "undefined" && window.matchMedia) {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    return "light";
+  });
 
   const toggleMode = () => setMode((prev) => (prev === "light" ? "dark" : "light"));
 

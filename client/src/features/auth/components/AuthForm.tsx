@@ -261,7 +261,7 @@ export function AuthForm({ mode = "signin" }: Readonly<AuthFormProps>) {
                 },
               }}
               sx={{ mb: 3 }}
-              autoComplete="current-password"
+              autoComplete={mode === "signin" ? "current-password" : "new-password"}
             />
 
             {/* Registration Fields */}

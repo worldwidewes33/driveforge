@@ -12,7 +12,7 @@ import type {
   AuthResponse,
 } from "./auth.types";
 
-const API_BASE_URL = "http://localhost:8080/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
 
 /**
  * Provides authentication state and functions to children components
@@ -35,6 +35,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (jwt && userData) {
       try {
+        // Parse JWT payload
+        const base64Url = jwt.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const payload = JSON.parse(atob(base64));
+        const exp = payload.exp;
+        const now = Math.floor(Date.now() / 1000);
+
+        if (!exp || exp < now) {
+          // Token expired or invalid
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("userData");
+          return;
+        }
+
+        // Token valid, set user
         const user = JSON.parse(userData) as User;
         setAuthState((prev) => ({
           ...prev,
@@ -42,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           isAuthenticated: true,
         }));
       } catch {
-        // Clear invalid data
+        // Malformed token or user data
         localStorage.removeItem("authToken");
         localStorage.removeItem("userData");
       }

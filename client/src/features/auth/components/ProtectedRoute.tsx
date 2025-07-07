@@ -2,7 +2,7 @@
  * @fileoverview Protected route component that redirects unauthenticated users
  */
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../features/auth/useAuth";
+import { useAuth } from "../useAuth";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
