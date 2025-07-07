@@ -23,6 +23,14 @@ export interface SignInCredentials {
   password: string;
 }
 
+export interface RegisterCredentials {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  firstname: string;
+  lastname: string;
+}
+
 export interface AuthResponse {
   status: 'success' | 'error' | 'fail';
   data: {
@@ -39,5 +47,6 @@ export interface AuthContextValue {
   error: string | null;
   signIn: (credentials: SignInCredentials) => Promise<void>;
   signOut: () => void;
+  register: (credentials: RegisterCredentials) => Promise<void>;
   clearError: () => void;
 }

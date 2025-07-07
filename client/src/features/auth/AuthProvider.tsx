@@ -4,7 +4,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { AuthContext } from './useAuth';
-import type { User, AuthState, SignInCredentials, AuthResponse } from './auth.types';
+import type { User, AuthState, SignInCredentials, RegisterCredentials, AuthResponse } from './auth.types';
 
 const API_BASE_URL = 'http://localhost:8080/api';
 
@@ -96,6 +96,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   /**
+   * Register user with email and password
+   * @param credentials - User email and password
+   */
+  const register = useCallback(async (credentials: RegisterCredentials) => {
+    setAuthState(prev => ({
+      ...prev,
+      isLoading: true,
+      error: null,
+    }));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      const authResponse: AuthResponse = await response.json(); 
+      const { data, status } = authResponse; 
+
+      if(!response.ok) {
+        throw new Error(data.message || 'Failed to register'); 
+      }
+
+      if(status === 'success' && data.user && data.jwt) {
+        localStorage.setItem('authToken', data.jwt);
+        localStorage.setItem('userData', JSON.stringify(data.user));
+
+        setAuthState({
+          user: data.user,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        }); 
+      } else {
+        throw new Error(data.message || 'Registration failed');
+      } 
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred during registration'; 
+      setAuthState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: errorMessage,
+      }))
+      throw error; 
+    }
+  }, [])
+
+  /**
    * Sign out user and clear auth state
    */
   const signOut = useCallback(() => {
@@ -126,8 +177,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     error: authState.error,
     signIn,
     signOut,
+    register,
     clearError,
-  }), [authState, signIn, signOut, clearError]);
+  }), [authState, signIn, signOut, register, clearError]);
 
   return (
     <AuthContext.Provider value={contextValue}>
