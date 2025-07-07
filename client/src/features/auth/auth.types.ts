@@ -32,12 +32,12 @@ export interface RegisterCredentials {
 }
 
 export interface AuthResponse {
-  status: 'success' | 'error' | 'fail';
+  status: "success" | "error" | "fail";
   data: {
     user?: User;
     jwt?: string;
     message?: string;
-  }
+  };
 }
 
 export interface AuthContextValue {

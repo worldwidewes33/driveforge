@@ -1,8 +1,8 @@
 /**
  * @fileoverview Hook and context for accessing authentication state in the app
  */
-import { useContext, createContext } from 'react';
-import type { AuthContextValue } from './auth.types';
+import { useContext, createContext } from "react";
+import type { AuthContextValue } from "./auth.types";
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -13,7 +13,7 @@ export const AuthContext = createContext<AuthContextValue | undefined>(undefined
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return ctx;
 }
